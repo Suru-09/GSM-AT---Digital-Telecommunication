@@ -11,5 +11,22 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    FILE* fp;
 
+    fp = fopen(argv[1], "r");
+
+    char c;
+    while( (c = fgetc(fp)) != EOF )
+    {
+        printf("Character : <%c> \n", c != 0xD && c != 0x0A ? c : '9');
+        uint8_t val;
+        if ( (val = parse(c)) )
+        {
+            printf("Eu sunt val: <%c>\n", val);
+            printf("Sunt READY_OK ? <%d>\n", val == AT_READY_OK);
+            printf("Something is happening here: <%s>!\n", (char *)commands.data[0]);
+        }
+    }
+
+    fclose(fp);
 }
