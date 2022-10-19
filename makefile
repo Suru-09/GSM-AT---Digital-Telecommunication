@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -o3
+CFLAGS = -o3 -DDEBUG
 
 main : main.c parser.o
 	$(CC) $(CFLAGS) -o main main.c parser.o

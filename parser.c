@@ -24,36 +24,38 @@ uint8_t isLF(uint8_t c)
 
 void addChar(uint8_t c)
 {
-    printf("De cate ori adaug caracter? %c \n", (char)c);
-    printf("Data lenCount: [%d]\n", commands.lineCount);
     uint32_t dataLen = strlen((char *)commands.data[commands.lineCount]);
-    printf("Eu sunt lungimea sirului: <%d>\n", dataLen);
+    // DEBUG_PRINT("Length on line [%d] is : [%d]\n", commands.lineCount, dataLen);
 
-    if ( dataLen > AT_COMMAND_LINE_SIZE )
+    if ( dataLen > AT_COMMAND_LINE_SIZE || commands.lineCount >= AT_COMMAND_MAX_LINES )
     {
         return;
     }
 
-    printf("Cum de am ajuns aici: dataLen: [%d]\n", dataLen);
+    // DEBUG_PRINT("commands.lineCount: [%d]\n", commands.lineCount);
     commands.data[commands.lineCount][dataLen] = c;
+    commands.data[commands.lineCount][dataLen + 1] = '\0';
 }
 
 
 AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
 {   
     static uint32_t state = 0;
+    DEBUG_PRINT("State [%d]\n", state);
     switch(state)
     {
         case 0:
             if ( isCR(ch) )
             {
                 state = 1;
+                return AT_IN_PROGRESS;
             }
             break;
         case 1:
             if ( isLF(ch) )
             {
                 state = 2;
+                return AT_IN_PROGRESS;
             }
             else 
             {
@@ -106,7 +108,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             if ( isLF(ch) )
             {
                 // FINAL STATE RESET
-                commands.lineCount++;
+                state = 0;
                 return AT_READY_OK;
             }
             else 
@@ -172,7 +174,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             if ( isLF(ch) )
             {
                 // FINAL STATE RESET
-                commands.lineCount++;
+                state = 0;
                 return AT_READY_OK;
             }
             else
@@ -218,6 +220,10 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             {
                 state = 16;
             }
+            else if ( ch == '+')
+            {
+                state = 12;
+            }
             else
             {
                 return AT_READY_ERROR;
@@ -248,6 +254,6 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
                 return AT_READY_ERROR;
             }
         default:
-            break;
+            return AT_READY_ERROR;
     }
 }

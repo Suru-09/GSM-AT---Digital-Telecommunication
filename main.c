@@ -18,15 +18,27 @@ int main(int argc, char **argv)
     char c;
     while( (c = fgetc(fp)) != EOF )
     {
-        printf("Character : <%c> \n", c != 0xD && c != 0x0A ? c : '9');
+        // DEBUG_PRINT("Character : <%c> \n", c != 0xD && c != 0x0A ? c : '9');
         uint8_t val;
         if ( (val = parse(c)) )
         {
-            printf("Eu sunt val: <%c>\n", val);
-            printf("Sunt READY_OK ? <%d>\n", val == AT_READY_OK);
-            printf("Something is happening here: <%s>!\n", (char *)commands.data[0]);
+            if ( val == AT_READY_OK)
+            {
+                DEBUG_PRINT("RETURN STRING: <%s>!\n", commands.data[commands.lineCount++]);
+            }
+            else if ( val == AT_IN_PROGRESS)
+            {
+                continue;
+            }
+            else if ( val == AT_READY_NOK )
+            {
+                DEBUG_PRINT("AT_READY_NOK!\n");
+            }
+            else if ( val == AT_READY_ERROR )
+            {
+                DEBUG_PRINT("AT_READY_ERROR!\n");
+            }
         }
     }
-
     fclose(fp);
 }
