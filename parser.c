@@ -32,6 +32,13 @@ void addChar(uint8_t c)
         return;
     }
 
+    if ( c == '\0' )
+    {
+        DEBUG_PRINT("WTF\n");
+        commands.lineCount++;
+        return;
+    }
+
     // DEBUG_PRINT("commands.lineCount: [%d]\n", commands.lineCount);
     commands.data[commands.lineCount][dataLen] = c;
     commands.data[commands.lineCount][dataLen + 1] = '\0';
@@ -108,6 +115,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             if ( isLF(ch) )
             {
                 // FINAL STATE RESET
+                addChar('\0');
                 state = 0;
                 return AT_READY_OK;
             }
@@ -174,6 +182,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             if ( isLF(ch) )
             {
                 // FINAL STATE RESET
+                addChar('\0');
                 state = 0;
                 return AT_READY_OK;
             }
@@ -208,6 +217,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
         case 14:
             if ( isLF(ch) )
             {
+                addChar('\0');
                 state = 15;
             }
             else
