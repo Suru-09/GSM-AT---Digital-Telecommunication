@@ -5,10 +5,16 @@
 #define AT_COMMAND_LINE_SIZE 100
 
 
+#ifndef DEBUG
+#define DEBUG 0
+#endif
+
+// DEBUG_PRINTING
+// Run with -DDEBUG in order to activate it (modify CFLAGS in makefile)
+// it does not generate any code otherwise
 #define DEBUG_PRINT(fmt, ...) \
         do { if (DEBUG) fprintf(stderr, "[%s]:%d:%s(): " fmt, __FILE__, \
                                 __LINE__, __func__, ##__VA_ARGS__); } while (0)
-
 
 #include <stdint.h>
 

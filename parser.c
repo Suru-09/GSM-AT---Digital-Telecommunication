@@ -24,8 +24,8 @@ uint8_t isLF(uint8_t c)
 
 void addChar(uint8_t c)
 {
-    uint32_t dataLen = strlen((char *)commands.data[commands.lineCount]);
-    // DEBUG_PRINT("Length on line [%d] is : [%d]\n", commands.lineCount, dataLen);
+    uint8_t dataLen = strlen((char *)commands.data[commands.lineCount]);
+    DEBUG_PRINT("Length on line [%d] is : [%d]\n", commands.lineCount, dataLen);
 
     if ( dataLen > AT_COMMAND_LINE_SIZE || commands.lineCount >= AT_COMMAND_MAX_LINES )
     {

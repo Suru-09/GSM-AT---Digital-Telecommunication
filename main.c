@@ -24,7 +24,7 @@ int main(int argc, char **argv)
         {
             if ( val == AT_READY_OK)
             {
-                DEBUG_PRINT("RETURN STRING: <%s>!\n", commands.data[commands.lineCount++]);
+                DEBUG_PRINT("RETURN STRING: <%s>!\n", commands.data[commands.lineCount]);
             }
             else if ( val == AT_IN_PROGRESS)
             {
