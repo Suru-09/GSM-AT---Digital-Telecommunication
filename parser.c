@@ -22,6 +22,13 @@ uint8_t isLF(uint8_t c)
     return c == 0x0A ? 1 : 0;
 }
 
+void reset(uint32_t* state)
+{
+    (*state) = 0;
+    // Resets the memory for the current line of the buffer
+    memset(commands.data[commands.lineCount], '\0', AT_COMMAND_LINE_SIZE);
+}
+
 void addChar(uint8_t c)
 {
     uint8_t dataLen = strlen((char *)commands.data[commands.lineCount]);
@@ -62,13 +69,13 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             if ( isLF(ch) )
             {
                 state = 2;
-                return AT_IN_PROGRESS;
             }
             else 
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
-            break;
+            return AT_IN_PROGRESS;
         case 2:
             if ( ch == 'O')
             {
@@ -87,20 +94,22 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
-            break;
+            return AT_IN_PROGRESS;
         case 3:
             if ( ch == 'K')
             {
                 addChar(ch);
                 state = 4;
+                return AT_IN_PROGRESS;
             }
             else
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
-            break;
         case 4:
             if ( isCR(ch) )
             {
@@ -108,9 +117,10 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
-            break;
+            return AT_IN_PROGRESS;
         case 5:
             if ( isLF(ch) )
             {
@@ -121,20 +131,22 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else 
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
-            break;
         case 6:
             if ( ch == 'R')
             {
+                reset(&state);
                 addChar(ch);
                 state = 7;
             }
             else
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
-            break;
+            return AT_IN_PROGRESS;
         case 7:
             if ( ch == 'R')
             {
@@ -145,7 +157,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             {
                 return AT_READY_ERROR;
             }
-            break;
+            return AT_IN_PROGRESS;
         case 8:
             if ( ch == 'O')
             {
@@ -154,9 +166,10 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
-            break;
+            return AT_IN_PROGRESS;
         case 9:
             if ( ch == 'R')
             {
@@ -165,9 +178,10 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
-            break;
+            return AT_IN_PROGRESS;
         case 10:
             if ( isCR(ch) )
             {
@@ -175,9 +189,10 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
-            break;
+            return AT_IN_PROGRESS;
         case 11:
             if ( isLF(ch) )
             {
@@ -186,18 +201,16 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
                 state = 0;
                 return AT_READY_OK;
             }
-            else
-            {
-                return AT_READY_ERROR;
-            }
-            break;
+            return AT_READY_ERROR;
         case 12:
             if ( ch >= 0x20 && ch <= 0x7e)
             {
                 addChar(ch);
                 state = 13;
+                return AT_IN_PROGRESS;
             }
-            break;
+            reset(&state);
+            return AT_READY_ERROR;
         case 13:
             if ( ch >= 0x20 && ch <= 0x7e )
             {
@@ -211,20 +224,19 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
-            break;
+            return AT_IN_PROGRESS;
         case 14:
             if ( isLF(ch) )
             {
                 addChar('\0');
                 state = 15;
+                return AT_READY_OK;
             }
-            else
-            {
-                return AT_READY_ERROR;
-            }
-            break;
+            reset(&state);
+            return AT_READY_ERROR;
         case 15:
             if ( isCR(ch))
             {
@@ -236,18 +248,18 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
-            break;
+            return AT_IN_PROGRESS;
         case 16:
             if ( isLF(ch) )
             {
                 state = 17;
+                return AT_IN_PROGRESS;
             }
-            else
-            {
-                return AT_READY_ERROR;
-            }
+            reset(&state);
+            return AT_READY_ERROR;
         case 17:
             if ( ch == 'E')
             {
@@ -261,9 +273,12 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
+            return AT_IN_PROGRESS;
         default:
+            reset(&state);
             return AT_READY_ERROR;
     }
 }
