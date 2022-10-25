@@ -29,10 +29,9 @@ extern AT_COMMAND_DATA commands;
 
 typedef enum AT_COMMAND_RET
 {
-    AT_READY_NOK = 0,
-    AT_READY_OK = 1,
-    AT_READY_ERROR = 2,
-    AT_IN_PROGRESS = 3
+    AT_READY_OK = 0,
+    AT_READY_ERROR = 1,
+    AT_IN_PROGRESS = 2
 }AT_COMMAND_RETURN_VALUE;
 
 AT_COMMAND_RETURN_VALUE parse(uint8_t ch);

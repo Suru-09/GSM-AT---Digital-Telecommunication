@@ -1,53 +1,73 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "parser.h"
 
-/**
- * @brief   1. Create a reset function when the Parser returns an error.
- *          2. 
- */
-
-int main(int argc, char **argv)
+void print_matrix()
 {
-    if(argc < 2)
+    for(int i = 0; i < AT_COMMAND_MAX_LINES; ++i)
     {
-        printf("Invalid use! Try: %s <file_name>", argv[0]);
+        // if (!strlen((char *)commands.data[i]))
+        // {
+        //     break;
+        // }
+        DEBUG_PRINT("<%s>\n", commands.data[i]);
+    }   
+}
+
+
+void test_parser(char* file_name)
+{
+    FILE* fp;
+    fp = fopen(file_name, "r");
+
+    if (!fp)
+    {
+        DEBUG_PRINT("Could not open the test file: <%s>\n", file_name);
         exit(1);
     }
 
-    FILE* fp;
-    fp = fopen(argv[1], "r");
 
     char c;
     while( (c = fgetc(fp)) != EOF )
     {
         // DEBUG_PRINT("Character : <%c> \n", c != 0xD && c != 0x0A ? c : '9');
-        uint8_t val;
-        if ( (val = parse(c)) )
+        uint8_t val = parse(c);
+        if ( val == AT_READY_OK)
         {
-            if ( val == AT_READY_OK && commands.lineCount < AT_COMMAND_MAX_LINES)
-            {
-                DEBUG_PRINT("RETURN STRING: <%s>!\n", commands.data[commands.lineCount - 1]);
-                // DEBUG_PRINT("Line Count: [%d]\n", commands.lineCount);
-            }
-            else if ( val == AT_IN_PROGRESS)
-            {
-                // DEBUG_PRINT("PROGRESS STRING: <%s>!\n", commands.data[commands.lineCount]);
-                continue;
-            }
-            else if ( val == AT_READY_NOK )
-            {
-                DEBUG_PRINT("AT_READY_NOK!\n");
-            }
-            else if ( val == AT_READY_ERROR )
-            {
-                DEBUG_PRINT("AT_READY_ERROR!\n");
-            }
-            else {
-                // DEBUG_PRINT("PLM!\n");
-            }
+            // if (commands.ok == 1)
+            // {
+            //     print_matrix();
+            // }
+            // else
+            // {
+            //     DEBUG_PRINT("Ok is FALSE!\n");
+            // }
+            print_matrix();
         }
+        else if ( val == AT_IN_PROGRESS)
+        {
+            continue;
+        }
+        else if ( val == AT_READY_ERROR )
+        {
+            DEBUG_PRINT("AT_READY_ERROR!\n");
+            break;
+        }  
     }
     fclose(fp);
+}
+
+int main(int argc, char **argv)
+{
+    if (argc < 2)
+    {
+        printf("Invalid use! Try: %s <file_name>\n", argv[0]);
+        exit(1);
+    }
+
+    test_parser(argv[1]);
+    
+    return 0;
 }

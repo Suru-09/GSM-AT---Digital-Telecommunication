@@ -10,6 +10,11 @@ AT_COMMAND_DATA commands = {
     .data = {'\0'}
 };
 
+void setOK(uint8_t bool)
+{
+    commands.ok = bool;
+}
+
 uint8_t isCR(uint8_t c)
 {
     // CARRIAGE RETURN == 0xD
@@ -26,13 +31,13 @@ void reset(uint32_t* state)
 {
     (*state) = 0;
     // Resets the memory for the current line of the buffer
-    memset(commands.data[commands.lineCount], '\0', AT_COMMAND_LINE_SIZE);
+    memset(commands.data, '\0', (AT_COMMAND_LINE_SIZE + 1) * AT_COMMAND_MAX_LINES);
 }
 
 void addChar(uint8_t c)
 {
     uint8_t dataLen = strlen((char *)commands.data[commands.lineCount]);
-    DEBUG_PRINT("Length on line [%d] is : [%d]\n", commands.lineCount, dataLen);
+    // DEBUG_PRINT("Length on line [%d] is : [%d]\n", commands.lineCount, dataLen);
 
     if ( dataLen > AT_COMMAND_LINE_SIZE || commands.lineCount >= AT_COMMAND_MAX_LINES )
     {
@@ -41,21 +46,21 @@ void addChar(uint8_t c)
 
     if ( c == '\0' )
     {
-        DEBUG_PRINT("WTF\n");
         commands.lineCount++;
         return;
     }
 
-    // DEBUG_PRINT("commands.lineCount: [%d]\n", commands.lineCount);
     commands.data[commands.lineCount][dataLen] = c;
     commands.data[commands.lineCount][dataLen + 1] = '\0';
+
+    // DEBUG_PRINT("CH: <%c>", commands.data[commands.lineCount][dataLen]);
 }
 
 
 AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
 {   
     static uint32_t state = 0;
-    DEBUG_PRINT("State [%d]\n", state);
+    // DEBUG_PRINT("State [%d]\n", state);s
     switch(state)
     {
         case 0:
@@ -63,6 +68,10 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             {
                 state = 1;
                 return AT_IN_PROGRESS;
+            }
+            else
+            {
+                return AT_READY_ERROR;
             }
             break;
         case 1:
@@ -79,12 +88,10 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
         case 2:
             if ( ch == 'O')
             {
-                addChar(ch);
                 state = 3;
             }
             else if ( ch == 'E')
             {
-                addChar(ch);
                 state = 6;
             }
             else if ( ch == '+' )
@@ -101,7 +108,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
         case 3:
             if ( ch == 'K')
             {
-                addChar(ch);
+                setOK(1);
                 state = 4;
                 return AT_IN_PROGRESS;
             }
@@ -137,8 +144,6 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
         case 6:
             if ( ch == 'R')
             {
-                reset(&state);
-                addChar(ch);
                 state = 7;
             }
             else
@@ -150,7 +155,6 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
         case 7:
             if ( ch == 'R')
             {
-                addChar(ch);
                 state = 8;
             }
             else
@@ -161,7 +165,6 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
         case 8:
             if ( ch == 'O')
             {
-                addChar(ch);
                 state = 9;
             }
             else
@@ -173,7 +176,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
         case 9:
             if ( ch == 'R')
             {
-                addChar(ch);
+                setOK(0);
                 state = 10;
             }
             else
@@ -233,7 +236,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             {
                 addChar('\0');
                 state = 15;
-                return AT_READY_OK;
+                return AT_IN_PROGRESS;
             }
             reset(&state);
             return AT_READY_ERROR;
@@ -268,7 +271,6 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else if ( ch == 'O')
             {
-                addChar(ch);
                 state = 3;
             }
             else
