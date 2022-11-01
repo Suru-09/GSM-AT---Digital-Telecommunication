@@ -59,7 +59,7 @@ void addChar(uint8_t c)
 AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
 {   
     static uint32_t state = 0;
-    // DEBUG_PRINT("State [%d]\n", state);s
+    // DEBUG_PRINT("State [%d]\n", state);
     switch(state)
     {
         case 0:
@@ -70,6 +70,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                DEBUG_PRINT("State [%d] expected: <%s>, received <%c>\n", state, "CR", ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
@@ -81,6 +82,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else 
             {
+                DEBUG_PRINT("State [%d] expected: <%s>, received <%c>\n", state, "LF", ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
@@ -101,6 +103,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                DEBUG_PRINT("State [%d] expected: <%c or %c or %c>, received <%c>\n", state, 'O', 'E', '+', ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
@@ -114,6 +117,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                DEBUG_PRINT("State [%d] expected: <%c>, received <%c>\n", state, 'K', ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
@@ -124,6 +128,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                DEBUG_PRINT("State [%d] expected: <%s>, received <%c>\n", state, "CR", ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
@@ -138,6 +143,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else 
             {
+                DEBUG_PRINT("State [%d] expected: <%s>, received <%c>\n", state, "LF", ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
@@ -148,6 +154,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                DEBUG_PRINT("State [%d] expected: <%c>, received <%c>\n", state, 'R', ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
@@ -159,6 +166,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                DEBUG_PRINT("State [%d] expected: <%c>, received <%c>\n", state, 'R', ch);
                 return AT_READY_ERROR;
             }
             return AT_IN_PROGRESS;
@@ -169,6 +177,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                DEBUG_PRINT("State [%d] expected: <%c>, received <%c>\n", state, 'O', ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
@@ -181,6 +190,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                DEBUG_PRINT("State [%d] expected: <%c>, received <%c>\n", state, 'R', ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
@@ -192,6 +202,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                DEBUG_PRINT("State [%d] expected: <%s>, received <%c>\n", state, "CR", ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
@@ -204,6 +215,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
                 state = 0;
                 return AT_READY_OK;
             }
+            DEBUG_PRINT("State [%d] expected: <%s>, received <%c>\n", state, "LF", ch);
             return AT_READY_ERROR;
         case 12:
             if ( ch >= 0x20 && ch <= 0x7e)
@@ -212,6 +224,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
                 state = 13;
                 return AT_IN_PROGRESS;
             }
+            DEBUG_PRINT("State [%d] expected: <%s>, received <%c>\n", state, "ASCII", ch);
             reset(&state);
             return AT_READY_ERROR;
         case 13:
@@ -227,6 +240,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                DEBUG_PRINT("State [%d] expected: <%c>, received <%c>\n", state, 'R', ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
@@ -238,6 +252,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
                 state = 15;
                 return AT_IN_PROGRESS;
             }
+            DEBUG_PRINT("State [%d] expected: <%s>, received <%c>\n", state, "LF", ch);
             reset(&state);
             return AT_READY_ERROR;
         case 15:
@@ -251,6 +266,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                DEBUG_PRINT("State [%d] expected: <%s or %c>, received <%c>\n", state, "CR", '+', ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
@@ -261,6 +277,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
                 state = 17;
                 return AT_IN_PROGRESS;
             }
+            DEBUG_PRINT("State [%d] expected: <%s>, received <%c>\n", state, "LF", ch);
             reset(&state);
             return AT_READY_ERROR;
         case 17:
@@ -275,6 +292,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                DEBUG_PRINT("State [%d] expected: <%c OR %c>, received <%c>\n", state, 'E', 'O', ch);
                 reset(&state);
                 return AT_READY_ERROR;
             }
