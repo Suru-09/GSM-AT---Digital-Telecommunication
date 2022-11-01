@@ -2,20 +2,25 @@
 #include <stdlib.h>
 #include <string.h>
 
+// non-C standard imports
 #include "parser.h"
 
-void print_matrix()
+void print_matrix(uint8_t start)
 {
-    for(int i = 0; i < AT_COMMAND_MAX_LINES; ++i)
+    for(int i = start; i < commands.lineCount; ++i)
     {
-        // if (!strlen((char *)commands.data[i]))
-        // {
-        //     break;
-        // }
+        if (!strlen((char *)commands.data[i]))
+        {
+            continue;
+        }
         DEBUG_PRINT("<%s>\n", commands.data[i]);
     }   
 }
 
+void reset_matrix()
+{
+    memset(commands.data, '\0', sizeof(commands.data));
+}
 
 void test_parser(char* file_name)
 {
@@ -28,23 +33,23 @@ void test_parser(char* file_name)
         exit(1);
     }
 
-
     char c;
+    uint8_t ok = 1, lastPrinted = 0;
     while( (c = fgetc(fp)) != EOF )
     {
         // DEBUG_PRINT("Character : <%c> \n", c != 0xD && c != 0x0A ? c : '9');
         uint8_t val = parse(c);
         if ( val == AT_READY_OK)
         {
-            // if (commands.ok == 1)
-            // {
-            //     print_matrix();
-            // }
-            // else
-            // {
-            //     DEBUG_PRINT("Ok is FALSE!\n");
-            // }
-            print_matrix();
+            if ( ok )
+            {
+                print_matrix(lastPrinted++);
+                if (commands.lineCount >= 100)
+                {
+                    ok = 0;
+                } 
+            }
+            DEBUG_PRINT("[commands.ok] == <%s>\n", commands.ok == 1 ? "OK" : "ERROR");
         }
         else if ( val == AT_IN_PROGRESS)
         {
@@ -56,6 +61,7 @@ void test_parser(char* file_name)
             break;
         }  
     }
+    reset_matrix();
     fclose(fp);
 }
 
@@ -68,6 +74,5 @@ int main(int argc, char **argv)
     }
 
     test_parser(argv[1]);
-    
     return 0;
 }

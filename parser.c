@@ -31,7 +31,7 @@ void reset(uint32_t* state)
 {
     (*state) = 0;
     // Resets the memory for the current line of the buffer
-    memset(commands.data, '\0', (AT_COMMAND_LINE_SIZE + 1) * AT_COMMAND_MAX_LINES);
+    memset(commands.data, '\0', sizeof(commands.data));
 }
 
 void addChar(uint8_t c)
@@ -52,7 +52,6 @@ void addChar(uint8_t c)
 
     commands.data[commands.lineCount][dataLen] = c;
     commands.data[commands.lineCount][dataLen + 1] = '\0';
-
     // DEBUG_PRINT("CH: <%c>", commands.data[commands.lineCount][dataLen]);
 }
 
@@ -71,6 +70,7 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
             }
             else
             {
+                reset(&state);
                 return AT_READY_ERROR;
             }
             break;
