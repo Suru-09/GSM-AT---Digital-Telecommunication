@@ -5,9 +5,9 @@
 // non-C standard imports
 #include "parser.h"
 
-void print_matrix(uint8_t start)
+void print_matrix()
 {
-    for(int i = start; i < commands.lineCount; ++i)
+    for(int i = 0; i < AT_COMMAND_MAX_LINES; ++i)
     {
         if (!strlen((char *)commands.data[i]))
         {
@@ -20,6 +20,7 @@ void print_matrix(uint8_t start)
 void reset_matrix()
 {
     memset(commands.data, '\0', sizeof(commands.data));
+    commands.lineCount = 0;
 }
 
 void test_parser(char* file_name)
@@ -34,22 +35,15 @@ void test_parser(char* file_name)
     }
 
     char c;
-    uint8_t ok = 1, lastPrinted = 0;
     while( (c = fgetc(fp)) != EOF )
     {
         // DEBUG_PRINT("Character : <%c> \n", c != 0xD && c != 0x0A ? c : '9');
         uint8_t val = parse(c);
         if ( val == AT_READY_OK)
         {
-            if ( ok )
-            {
-                print_matrix(lastPrinted++);
-                if (commands.lineCount >= 100)
-                {
-                    ok = 0;
-                } 
-            }
+            print_matrix();
             DEBUG_PRINT("[commands.ok] == <%s>\n", commands.ok == 1 ? "OK" : "ERROR");
+            reset_matrix();
         }
         else if ( val == AT_IN_PROGRESS)
         {
@@ -61,7 +55,6 @@ void test_parser(char* file_name)
             break;
         }  
     }
-    reset_matrix();
     fclose(fp);
 }
 
