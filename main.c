@@ -11,7 +11,7 @@ void print_matrix()
     {
         if (!strlen((char *)commands.data[i]))
         {
-            continue;
+            break;
         }
         DEBUG_PRINT("<%s>\n", commands.data[i]);
     }   

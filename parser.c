@@ -283,7 +283,6 @@ AT_COMMAND_RETURN_VALUE parse(uint8_t ch)
         case 17:
             if ( ch == 'E')
             {
-                addChar(ch);
                 state = 6;
             }
             else if ( ch == 'O')
